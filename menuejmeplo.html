@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Menú Abordo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #eaebef;
+            font-family: "Poppins", sans-serif;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Estilos de login */
+        .login-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            background: #f0f0f0;
+        }
+
+        .login-container.hidden {
+            display: none;
+        }
+
+        .cuadro {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+        }
+
+        .cuadro h1 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        .cuadro label {
+            display: block;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .cuadro input[type="text"],
+        .cuadro input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .cuadro input[type="button"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .cuadro input[type="button"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Estilos del menú principal */
+        .main-content {
+            display: none;
+            width: 100%;
+        }
+
+        .main-content.active {
+            display: flex;
+        }
+
+        .nav {
+            width: 300px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .nav__link {
+            color: #303440;
+            display: block;
+            padding: 15px 0;
+            text-decoration: none;
+        }
+
+        .nav__link--inside {
+            border-radius: 6px;
+            padding-left: 20px;
+            text-align: left;
+        }
+
+        .nav__link--inside:hover {
+            background: #f6f8fa;
+        }
+
+        .list {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            border-radius: 0 16px 16px 0;
+            background: #fff;
+        }
+
+        .list__item {
+            list-style: none;
+            width: 100%;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .list__item--click {
+            cursor: pointer;
+        }
+
+        .list__button {
+            display: flex;
+            align-items: center;
+            gap: 1em;
+            width: 70%;
+            margin: 0 auto;
+        }
+
+        .arrow .list_arrow {
+            transform: rotate(90deg);
+        }
+
+        .list_arrow {
+            margin-left: auto;
+            transition: transform .3s;
+        }
+
+        .list__show {
+            width: 80%;
+            margin-left: auto;
+            border-left: 2px solid #303440;
+            list-style: none;
+            transition: height .4s;
+            height: 0;
+        }
+
+        /* Área de contenido */
+        .content-area {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Iconos del menú */
+        .list__img {
+            width: 24px;
+            height: 24px;
+        }
+       
+        /* Estilos para la sección de vuelo basados en el código original */
+        #vuelo1-section button {
+            background-color: gray;
+            color: black;
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        #vuelo1-section input {
+            margin: 5px;
+            padding: 10px;
+        }
+       
+        /* Estilos para el historial */
+        .historial-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #4CAF50;
+        }
+
+        /* Estilos para el menú interactivo */
+.menu-categoria {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.menu-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.menu-item {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.menu-item h4 {
+    margin-top: 0;
+    color: #333;
+}
+
+.menu-item p {
+    color: #666;
+    font-size: 14px;
+}
+
+.menu-item .precio {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.menu-item button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.menu-item button:hover {
+    background-color: #45a049;
+}
+
+.orden-actual {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.orden-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.orden-vacia {
+    color: #999;
+    font-style: italic;
+}
+
+.total {
+    font-weight: bold;
+    text-align: right;
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+.boton-pagar {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+    transition: background-color 0.3s;
+    float: right;
+}
+
+.boton-pagar:hover {
+    background-color: #45a049;
+}
+
+.boton-eliminar {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s;
+}
+
+.boton-eliminar:hover {
+    background-color: #d32f2f;
+}
+    </style>
+</head>
+
+<body>
+    <!-- Pantalla de Login -->
+    <div class="login-container" id="loginContainer">
+        <div class="cuadro">
+            <h1>Ingresar datos</h1>
+            <label for="usuario">Usuario</label>
+            <input type="text" id="usuario" placeholder="Escriba su usuario">
+            <label for="clave">Clave</label>
+            <input type="password" id="clave" placeholder="Escriba su clave">
+            <input type="button" value="Entrar" onclick="login()">
+        </div>
+    </div>
+
+    <!-- Contenido Principal con Menú -->
+    <div class="main-content" id="mainContent">
+        <nav class="nav">
+            <ul class="list">
+                <li class="list__item">
+                    <div class="list__button" onclick="showSection('inicio-section')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjIgMTQuMXYtMi4yTDEyIDUuOGwtMTAgNi4xdjIuMmwxMC02LjEgMTAgNi4xem0tMiAwVjIyaC00di00aC00djRINFYxNC4xbDgtNC45IDggNC45eiIvPjwvc3ZnPg==" class="list__img">
+                        <a href="#" class="nav__link">Inicio</a>
+                    </div>        
+                </li>
+
+                <li class="list__item list__item--click">
+                    <div class="list__button list__button--click">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjAuMTYgNWgtMTYuMzJsLjk1IDExLjQzIDIuMjMgMS4xaC45OGwyIDFoNi4zMmwyLTFoLjk4bDIuMjMtMS4xLjk1LTExLjQzem0tMTYuMzggMTBjLS4wOS0xLjA0LS4xOC0yLjA3LS4yOC0zLjEyLS4wNi0uNi0uMTItMS4xOS0uMTctMS43OGgtLjQ2Yy4wNS41OS4xMSAxLjE4LjE3IDEuNzguMSAxLjA1LjE5IDIuMDguMjggMy4xMi4wNi41OC4xMiAxLjE2LjE4IDEuNzRoLjQ2Yy0uMDYtLjU4LS4xMi0xLjE2LS4xOC0xLjc0em00LjQzIDEuMDNjLjMyLS4zMS42My0uNjMuOTQtLjk1LjMxLS4zMS42Mi0uNjMuOTMtLjk0LS4zLS4zMS0uNjEtLjYzLS45MS0uOTUtLjMyLS4zMS0uNjQtLjYzLS45Ni0uOTMtLjA3LjYyLS4xNCAxLjIzLS4yMSAxLjg1LS4wNi42Ni0uMTMgMS4zMS0uMTkgMS45N2guNGMwLS4wMSAwLS4wMS0uMDEtLjA1em0tMS4wNSAwaC40NmMtLjA1LS42NS0uMTEtMS4yOS0uMTctMS45My0uMDctLjcxLS4xNC0xLjQyLS4yMS0yLjEzaC0uNDZjLjA3LjcxLjE0IDEuNDIuMjEgMi4xMy4wNi42NC4xMSAxLjI5LjE3IDEuOTN6bTUuMjktLjA3aC40NmMtLjA3LS42Ni0uMTMtMS4zMS0uMTktMS45N2wtLjIxLTEuODUtLjk2LjkzLS45MS45NS45My45NC45NCwxaC0uMDZ6bS0xLjkyLTEuNjVjLjQ0LS40Mi44Ny0uODYgMS4yOS0xLjI5LjQyLS40My44NC0uODYgMS4yNS0xLjNsLS4yNS0yLjY5aC0zLjY3bC44OC44OWMuNDIuNDIuODMuODUgMS4yMyAxLjI4LjQzLjQyLjg1Ljg2IDEuMjYgMS4yOS0uNDEuNDMtLjgzLjg2LTEuMjYgMS4yOC0uNC40My0uODEuODUtMS4yMyAxLjI4LS4yOS4yOS0uNTguNTktLjg4Ljg4aDMuNjdsLjI1LTIuNjljLS40MS0uNDQtLjgzLS44Ny0xLjI1LTEuM3MtLjg2LS44Ni0xLjI5LTEuMjh6bTQuMzYgMy43MWguNDZjLS4wNi0uNTgtLjEyLTEuMTYtLjE4LTEuNzRsLS4yOC0zLjEyYy0uMDUtLjYtLjExLTEuMTktLjE3LTEuNzhoLS40NmMuMDUuNTkuMTEgMS4xOC4xOCAxLjc4LjA5IDEuMDQuMTggMi4wNy4yOCAzLjEyLjA1LjU4LjExIDEuMTYuMTcgMS43NHptLTkuNDUgMHYtNy42M2gtLjQ2djcuNjNoLjQ2em0xMS40NiAwdi03LjYzaC0uNDZ2Ny42M2guNDZ6bS0xNC40OSAwdi03LjYzaC0uNDZ2Ny42M2guNDZ6bTEyLjQ3IDB2LTcuNjNoLS40NnY3LjYzaC40NnoiLz48L3N2Zz4=" class="list__img">
+                        <a href="#" class="nav__link">Menús de comida</a>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNOC41OSAxNi41OUwxMyAxMi4xN1Y0aC0ydjcuNDFMNy40MSAxNS40MWwyLjUgMi41RS03LjEzIDE3LjcxIDE3LjcxIDE3LjcxeiIvPjwvc3ZnPg==" class="list_arrow">
+                    </div>
+                    <ul class="list__show">
+                        <li class="list__inside">
+                            <a href="#" class="nav__link nav__link--inside" onclick="showSection('menu1-section')">Menú 1</a>
+                        </li>
+                        <li class="list__inside">
+                            <a href="#" class="nav__link nav__link--inside" onclick="showSection('menu2-section')">Menú 2</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="list__item">
+                    <div class="list__button" onclick="showSection('pago-section')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjAgNGgtMTZjLTEuMTEgMC0yIC44OS0yIDJ2MTJjMCAxLjExLjg5IDIgMiAyaDE2YzEuMTEgMCAyLS44OSAyLTJ2LTEyYzAtMS4xMS0uODktMi0yLTJ6bS0xNiA0aDUuNXYyaC01LjV2LTJ6bTAgNC41aDMuNXYyaC0zLjV2LTJ6bTYgOC41aC0zLjV2LTJoMy41djJ6bTguNSAwbC03LTcgMS40MS0xLjQxIDUuNTkgNS41OSAzLjU5LTMuNTkgMS40MSAxLjQxLTUgNXoiLz48L3N2Zz4=" class="list__img">
+                        <a href="#" class="nav__link">Formas de pago</a>
+                    </div>        
+                </li>
+
+                <li class="list__item">
+                    <div class="list__button" onclick="showSection('vuelo1-section')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMjJjMS4xIDAgMi0uOS4yLTJoLTRjMCAx" class="list__img">
+                        <a href="#" class="nav__link">Número de vuelo</a>
+                    </div>        
+                </li>
+
+                <li class="list__item">
+                    <div class="list__button" onclick="cerrarSesion()">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTcgN2gtMTB2MTBoMTB2LTEwem0yLTR2MThjMCAxLjEtLjkgMi0yIDJoLTEyYy0xLjEgMC0yLS45LTItMnYtMThjMC0xLjEuOS0yIDItMmgxMmMxLjEgMCAyIC45IDIgMnptLTEyIDE1YzAgLjU1LjQ1IDEgMSAxaDdjLjU1IDAgMS0uNDUgMS0xdi0xMmMwLS41NS0uNDUtMS0xLTFoLTdjLS41NSAwLTEgLjQ1LTEgMXYxMnptNy0xNGMwIC41NS0uNDUgMS0xIDFzLTEtLjQ1LTEtMSAuNDUtMSAxLTEgMSAuNDUgMSAxeiIvPjwvc3ZnPg==" class="list__img">
+                        <a href="#" class="nav__link">Salir</a>
+                    </div>        
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Área de contenido principal -->
+        <div class="content-area">
+            <!-- Sección de inicio -->
+            <div id="inicio-section" class="content-section active">
+                <h2>Bienvenido al Sistema de Menú Abordo</h2>
+                <p>Por favor, seleccione una opción del menú para comenzar.</p>
+                <p>Este sistema le permite navegar entre diferentes opciones de menús de comida disponibles durante su vuelo.</p>
+            </div>
+
+            <!-- Secciones de menú -->
+            <div id="menu1-section" class="content-section">
+                <h2>Menú de Comida 1 - Tradicional</h2>
+                <p>Seleccione los platos que desea ordenar:</p>
+                
+                <!-- Desayuno -->
+                <div class="menu-categoria">
+                    <h3>Desayuno</h3>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <h4>Omelette Clásico</h4>
+                            <p>Con queso, jamón y hierbas frescas</p>
+                            <p class="precio">$7.50</p>
+                            <button onclick="agregarAOrden('Omelette Clásico', 7.50, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Tostadas con Mermelada</h4>
+                            <p>Pan artesanal con mantequilla y mermelada casera</p>
+                            <p class="precio">$5.25</p>
+                            <button onclick="agregarAOrden('Tostadas con Mermelada', 5.25, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Frutas Frescas</h4>
+                            <p>Selección de frutas de temporada</p>
+                            <p class="precio">$6.00</p>
+                            <button onclick="agregarAOrden('Frutas Frescas', 6.00, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Yogur con Granola</h4>
+                            <p>Yogur griego con granola y miel</p>
+                            <p class="precio">$5.75</p>
+                            <button onclick="agregarAOrden('Yogur con Granola', 5.75, 1)">Añadir a orden</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Almuerzo -->
+                <div class="menu-categoria">
+                    <h3>Almuerzo</h3>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <h4>Pollo al Horno</h4>
+                            <p>Con verduras asadas y patatas</p>
+                            <p class="precio">$11.50</p>
+                            <button onclick="agregarAOrden('Pollo al Horno', 11.50, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Pasta Bolognesa</h4>
+                            <p>Pasta fresca con salsa de carne casera</p>
+                            <p class="precio">$9.25</p>
+                            <button onclick="agregarAOrden('Pasta Bolognesa', 9.25, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Ensalada Verde</h4>
+                            <p>Con vinagreta de limón y hierbas</p>
+                            <p class="precio">$7.50</p>
+                            <button onclick="agregarAOrden('Ensalada Verde', 7.50, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Tarta de Manzana</h4>
+                            <p>Postre casero con canela y vainilla</p>
+                            <p class="precio">$6.50</p>
+                            <button onclick="agregarAOrden('Tarta de Manzana', 6.50, 1)">Añadir a orden</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cena -->
+                <div class="menu-categoria">
+                    <h3>Cena</h3>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <h4>Filete de Res</h4>
+                            <p>Con salsa de vino tinto y puré de patatas</p>
+                            <p class="precio">$14.50</p>
+                            <button onclick="agregarAOrden('Filete de Res', 14.50, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Pescado del Día</h4>
+                            <p>A la plancha con limón y hierbas</p>
+                            <p class="precio">$12.25</p>
+                            <button onclick="agregarAOrden('Pescado del Día', 12.25, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Arroz con Pollo</h4>
+                            <p>Receta tradicional con verduras</p>
+                            <p class="precio">$10.75</p>
+                            <button onclick="agregarAOrden('Arroz con Pollo', 10.75, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Risotto de Champiñones</h4>
+                            <p>Con queso parmesano y trufa</p>
+                            <p class="precio">$11.50</p>
+                            <button onclick="agregarAOrden('Risotto de Champiñones', 11.50, 1)">Añadir a orden</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Postres -->
+                <div class="menu-categoria">
+                    <h3>Postres</h3>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <h4>Tarta de Chocolate</h4>
+                            <p>Con helado de vainilla</p>
+                            <p class="precio">$5.50</p>
+                            <button onclick="agregarAOrden('Tarta de Chocolate', 5.50, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Flan de Caramelo</h4>
+                            <p>Receta casera tradicional</p>
+                            <p class="precio">$4.75</p>
+                            <button onclick="agregarAOrden('Flan de Caramelo', 4.75, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Frutas del Bosque</h4>
+                            <p>Con crema batida y menta</p>
+                            <p class="precio">$5.50</p>
+                            <button onclick="agregarAOrden('Frutas del Bosque', 5.50, 1)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Crema Catalana</h4>
+                            <p>Con azúcar caramelizado</p>
+                            <p class="precio">$5.25</p>
+                            <button onclick="agregarAOrden('Crema Catalana', 5.25, 1)">Añadir a orden</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orden actual -->
+                <div class="orden-actual">
+                    <h3>Su Orden (Menú 1)</h3>
+                    <div id="orden-items-1">
+                        <p class="orden-vacia">No hay elementos en su orden</p>
+                    </div>
+                    <div id="total-1" class="total">Total: $0.00</div>
+                    <button class="boton-pagar" onclick="procesarPago(1)">Procesar Pago</button>
+                </div>
+            </div>
+
+            <div id="menu2-section" class="content-section">
+                <h2>Menú de Comida 2 - Especial</h2>
+                <p>Seleccione los platos que desea ordenar:</p>
+                
+                <!-- Desayuno -->
+                <div class="menu-categoria">
+                    <h3>Desayuno</h3>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <h4>Avena con Frutas</h4>
+                            <p>Avena cocida con frutas frescas y miel</p>
+                            <p class="precio">$6.50</p>
+                            <button onclick="agregarAOrden('Avena con Frutas', 6.50, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Wrap de Huevo</h4>
+                            <p>Con espinacas, queso y pimientos</p>
+                            <p class="precio">$7.25</p>
+                            <button onclick="agregarAOrden('Wrap de Huevo', 7.25, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Pancakes Veganos</h4>
+                            <p>Con jarabe de arce y frutas</p>
+                            <p class="precio">$8.00</p>
+                            <button onclick="agregarAOrden('Pancakes Veganos', 8.00, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Smoothie Bowl</h4>
+                            <p>Batido espeso con toppings de frutas y semillas</p>
+                            <p class="precio">$7.75</p>
+                            <button onclick="agregarAOrden('Smoothie Bowl', 7.75, 2)">Añadir a orden</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Almuerzo -->
+                <div class="menu-categoria">
+                    <h3>Almuerzo</h3>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <h4>Pasta Primavera</h4>
+                            <p>Con verduras frescas de temporada</p>
+                            <p class="precio">$9.50</p>
+                            <button onclick="agregarAOrden('Pasta Primavera', 9.50, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Ensalada de Quinoa</h4>
+                            <p>Con vegetales asados y vinagreta</p>
+                            <p class="precio">$8.25</p>
+                            <button onclick="agregarAOrden('Ensalada de Quinoa', 8.25, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Hamburguesa Vegetal</h4>
+                            <p>Con pan integral y guarnición</p>
+                            <p class="precio">$10.50</p>
+                            <button onclick="agregarAOrden('Hamburguesa Vegetal', 10.50, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Sopa de Lentejas</h4>
+                            <p>Con verduras y especias</p>
+                            <p class="precio">$7.50</p>
+                            <button onclick="agregarAOrden('Sopa de Lentejas', 7.50, 2)">Añadir a orden</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cena -->
+                <div class="menu-categoria">
+                    <h3>Cena</h3>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <h4>Curry de Garbanzos</h4>
+                            <p>Con arroz basmati y pan naan</p>
+                            <p class="precio">$11.50</p>
+                            <button onclick="agregarAOrden('Curry de Garbanzos', 11.50, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Bowl sin Gluten</h4>
+                            <p>Base de arroz con proteínas y vegetales</p>
+                            <p class="precio">$12.25</p>
+                            <button onclick="agregarAOrden('Bowl sin Gluten', 12.25, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Tacos Vegetarianos</h4>
+                            <p>Con frijoles, aguacate y salsa</p>
+                            <p class="precio">$10.75</p>
+                            <button onclick="agregarAOrden('Tacos Vegetarianos', 10.75, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Menú Infantil</h4>
+                            <p>Nuggets caseros con puré y vegetales</p>
+                            <p class="precio">$8.50</p>
+                            <button onclick="agregarAOrden('Menú Infantil', 8.50, 2)">Añadir a orden</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Postres -->
+                <div class="menu-categoria">
+                    <h3>Postres</h3>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <h4>Mousse de Chocolate</h4>
+                            <p>Sin gluten y bajo en azúcar</p>
+                            <p class="precio">$5.50</p>
+                            <button onclick="agregarAOrden('Mousse de Chocolate', 5.50, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Frutas con Yogurt</h4>
+                            <p>Selección de frutas con yogurt griego</p>
+                            <p class="precio">$4.75</p>
+                            <button onclick="agregarAOrden('Frutas con Yogurt', 4.75, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Brownie Vegano</h4>
+                            <p>Con nueces y salsa de caramelo</p>
+                            <p class="precio">$5.50</p>
+                            <button onclick="agregarAOrden('Brownie Vegano', 5.50, 2)">Añadir a orden</button>
+                        </div>
+                        <div class="menu-item">
+                            <h4>Parfait de Chía</h4>
+                            <p>Con puré de frutas y granola</p>
+                            <p class="precio">$5.25</p>
+                            <button onclick="agregarAOrden('Parfait de Chía', 5.25, 2)">Añadir a orden</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orden actual -->
+                <div class="orden-actual">
+                    <h3>Su Orden (Menú 2)</h3>
+                    <div id="orden-items-2">
+                        <p class="orden-vacia">No hay elementos en su orden</p>
+                    </div>
+                    <div id="total-2" class="total">Total: $0.00</div>
+                    <button class="boton-pagar" onclick="procesarPago(2)">Procesar Pago</button>
+                </div>
+            </div>
+            <!-- Sección de pagos -->
+            <div id="pago-section" class="content-section">
+                <h2>Formas de Pago</h2>
+                <p>Aceptamos las siguientes formas de pago:</p>
+                <ul>
+                    <li>Tarjetas de crédito (Visa, MasterCard, American Express)</li>
+                    <li>Efectivo (moneda local)</li>
+                    <li>Millas de viajero frecuente</li>
+                </ul>
+                <p>Para cualquier consulta sobre pagos, por favor contacte a nuestro personal de cabina.</p>
+            </div>
+
+            <!-- Secciones de vuelo -->
+            <div id="vuelo1-section" class="content-section">
+                <h2>Número de Vuelo</h2>
+                <p>Información sobre sus vuelos:</p>
+                <ul>
+                    <li>Vuelos nacionales: Disponible con su número de reserva</li>
+                    <li>Vuelos internacionales: Disponible con su pasaporte</li>
+                    <li>Conexiones: Puede consultar en la app móvil</li>
+                </ul>
+                <p>Para registrar la información de su vuelo actual, por favor complete el siguiente formulario:</p>
+                
+                <div style="margin-top: 20px;">
+                    <input type="text" id="numeroVuelo" placeholder="Número de Vuelo" />
+                    <input type="text" id="numeroAsiento" placeholder="Número de Asiento" />
+                    <br />
+                    <button id="guardarBtn">Guardar Datos</button>
+                </div>
+            </div>
+
+            <div id="vuelo2-section" class="content-section">
+                <h2>Historial de Selecciones</h2>
+                <div id="historial-container" style="margin-top: 20px; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <h3>Datos guardados</h3>
+                    <div id="historial-datos">
+                        <p>No hay datos guardados aún.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función de login
+        function login() {
+            let user = document.getElementById("usuario").value;
+            let pass = document.getElementById("clave").value;
+            if (user === "usuario" && pass === "123") {
+                document.getElementById("loginContainer").classList.add("hidden");
+                document.getElementById("mainContent").classList.add("active");
+            } else {
+                alert("Datos incorrectos, intentar nuevamente");
+            }
+        }
+
+        // Función para cerrar sesión
+        function cerrarSesion() {
+            document.getElementById("loginContainer").classList.remove("hidden");
+            document.getElementById("mainContent").classList.remove("active");
+            document.getElementById("usuario").value = "";
+            document.getElementById("clave").value = "";
+        }
+
+        // Función para mostrar secciones de contenido
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+           
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Manejar los menús desplegables
+        let listElements = document.querySelectorAll('.list__button--click');
+        listElements.forEach(listElement => {
+            listElement.addEventListener('click', () => {
+                listElement.classList.toggle('arrow');
+                let height = 0;
+                let menu = listElement.nextElementSibling;
+                if (menu.clientHeight === 0) {
+                    height = menu.scrollHeight;
+                }
+                menu.style.height = height + "px";
+            });
+        });
+       
+        // Array para almacenar el historial de selecciones
+        const historialSelecciones = [];
+       
+        // Funcionalidad para guardar datos de vuelo
+        document.getElementById('guardarBtn').addEventListener('click', function() {
+            const vuelo = document.getElementById('numeroVuelo').value;
+            const asiento = document.getElementById('numeroAsiento').value;
+            if (vuelo && asiento) {
+                // Confirmar que los datos son correctos antes de guardar
+                const confirmacion = confirm(`¿Son correctos los datos?\nNúmero de Vuelo: ${vuelo}\nNúmero de Asiento: ${asiento}`);
+               
+                if (confirmacion) {
+                    // Guardar los datos en el historial
+                    const fecha = new Date();
+                    const registro = {
+                        vuelo: vuelo,
+                        asiento: asiento,
+                        fecha: fecha.toLocaleString()
+                    };
+                   
+                    historialSelecciones.push(registro);
+                    actualizarHistorial();
+                   
+                    // Mostrar mensaje de éxito
+                    console.log(`Datos guardados: Vuelo - ${vuelo}, Asiento - ${asiento}`);
+                    alert("Datos guardados correctamente.");
+                   
+                    // Limpiar los campos de texto
+                    document.getElementById('numeroVuelo').value = '';
+                    document.getElementById('numeroAsiento').value = '';
+                   
+                    // Mostrar la sección de historial
+                    showSection('vuelo2-section');
+                }
+            } else {
+                // Alertar si faltan datos
+                alert('Por favor, complete ambos campos.');
+            }
+        });
+       
+        // Función para actualizar la vista del historial
+        function actualizarHistorial() {
+            const historialContainer = document.getElementById('historial-datos');
+           
+            if (historialSelecciones.length === 0) {
+                historialContainer.innerHTML = '<p>No hay datos guardados aún.</p>';
+                return;
+            }
+           
+            let html = '';
+            historialSelecciones.forEach((registro, index) => {
+                html += `
+                <div class="historial-item">
+                    <p><strong>Registro #${index + 1}</strong> - ${registro.fecha}</p>
+                    <p><strong>Número de Vuelo:</strong> ${registro.vuelo}</p>
+                    <p><strong>Número de Asiento:</strong> ${registro.asiento}</p>
+                </div>`;
+            });
+           
+            historialContainer.innerHTML = html;
+        }
+
+        // Variables para los menús interactivos
+let ordenMenu1 = [];
+let ordenMenu2 = [];
+let totalMenu1 = 0;
+let totalMenu2 = 0;
+
+// Función para agregar platos a la orden
+function agregarAOrden(nombrePlato, precio, menuId) {
+    if (menuId === 1) {
+        ordenMenu1.push({
+            nombre: nombrePlato,
+            precio: precio
+        });
+        totalMenu1 += precio;
+        actualizarVistaOrden(1);
+    } else if (menuId === 2) {
+        ordenMenu2.push({
+            nombre: nombrePlato,
+            precio: precio
+        });
+        totalMenu2 += precio;
+        actualizarVistaOrden(2);
+    }
+}
+
+// Función para eliminar platos de la orden
+function eliminarDeOrden(index, menuId) {
+    if (menuId === 1) {
+        totalMenu1 -= ordenMenu1[index].precio;
+        ordenMenu1.splice(index, 1);
+        actualizarVistaOrden(1);
+    } else if (menuId === 2) {
+        totalMenu2 -= ordenMenu2[index].precio;
+        ordenMenu2.splice(index, 1);
+        actualizarVistaOrden(2);
+    }
+}
+
+// Función para actualizar la vista de la orden
+function actualizarVistaOrden(menuId) {
+    let ordenContainer;
+    let totalElement;
+    let orden;
+    let total;
+    
+    if (menuId === 1) {
+        ordenContainer = document.getElementById('orden-items-1');
+        totalElement = document.getElementById('total-1');
+        orden = ordenMenu1;
+        total = totalMenu1;
+    } else if (menuId === 2) {
+        ordenContainer = document.getElementById('orden-items-2');
+        totalElement = document.getElementById('total-2');
+        orden = ordenMenu2;
+        total = totalMenu2;
+    }
+    
+    if (orden.length === 0) {
+        ordenContainer.innerHTML = '<p class="orden-vacia">No hay elementos en su orden</p>';
+        totalElement.innerHTML = 'Total: $0.00';
+        return;
+    }
+    
+    let html = '';
+    orden.forEach((item, index) => {
+        html += `
+        <div class="orden-item">
+            <span>${item.nombre}</span>
+            <div>
+                <span>$${item.precio.toFixed(2)}</span>
+                <button class="boton-eliminar" onclick="eliminarDeOrden(${index}, ${menuId})">×</button>
+            </div>
+        </div>`;
+    });
+    
+    ordenContainer.innerHTML = html;
+    totalElement.innerHTML = `Total: $${total.toFixed(2)}`;
+}
+
+// Función para procesar el pago
+function procesarPago(menuId) {
+    let orden;
+    let total;
+    let menuNombre;
+    
+    if (menuId === 1) {
+        orden = ordenMenu1;
+        total = totalMenu1;
+        menuNombre = "Tradicional";
+    } else if (menuId === 2) {
+        orden = ordenMenu2;
+        total = totalMenu2;
+        menuNombre = "Especial";
+    }
+    
+    if (orden.length === 0) {
+        alert('No hay elementos en su orden. Añada algo al menú primero.');
+        return;
+    }
+    
+    // Crear un resumen de la orden para mostrar
+    let resumen = `Resumen de su orden (Menú ${menuNombre}):\n\n`;
+    orden.forEach(item => {
+        resumen += `${item.nombre}: $${item.precio.toFixed(2)}\n`;
+    });
+    resumen += `\nTotal: $${total.toFixed(2)}`;
+    
+    const confirmacion = confirm(`${resumen}\n\n¿Desea proceder con el pago?`);
+    
+    if (confirmacion) {
+        alert('¡Pago procesado con éxito! Su orden ha sido registrada.');
+        
+        // Guardar la orden en el historial
+        const fecha = new Date();
+        historialSelecciones.push({
+            tipo: `Orden de comida - Menú ${menuNombre}`,
+            detalles: `${orden.length} platos por $${total.toFixed(2)}`,
+            fecha: fecha.toLocaleString()
+        });
+        
+        // Actualizar historial si existe la función
+        if (typeof actualizarHistorial === 'function') {
+            actualizarHistorial();
+        }
+        
+        // Limpiar la orden actual
+        if (menuId === 1) {
+            ordenMenu1 = [];
+            totalMenu1 = 0;
+        } else if (menuId === 2) {
+            ordenMenu2 = [];
+            totalMenu2 = 0;
+        }
+        
+        actualizarVistaOrden(menuId);
+    }
+}
+    </script>
+</body>
+</html>
